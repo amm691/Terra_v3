@@ -24,9 +24,8 @@ steps:
   dir: 'gcp-devops/apps/order-service' # Added 'gcp-devops'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service', '.']
 
-# ... (Push steps stay the same) ...
 
-# 4. Get cluster credentials
+# Step 4: Get cluster credentials
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
@@ -39,7 +38,14 @@ steps:
   - --project
   - $PROJECT_ID
 
-# 5. Deploy to cluster
+# Step 5: Inject Project ID and Deploy
 - name: 'gcr.io/cloud-builders/kubectl'
-  dir: 'gcp-devops' # Move into the folder where k8s/ exists
-  args: ['apply', '-f', 'k8s/']
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    # Use sed to swap the placeholder for the real Project ID
+    sed -i "s/PLACEHOLDER_PROJECT_ID/$PROJECT_ID/g" gcp-devops/k8s/application.yaml
+    
+    # Now apply the modified file
+    kubectl apply -f gcp-devops/k8s/application.yaml
