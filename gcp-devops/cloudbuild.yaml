@@ -11,10 +11,9 @@ steps:
 steps:
 # 1. Build & Push Application Service
 - name: 'gcr.io/cloud-builders/docker'
-  # NOTICE THE PATH: added 'gcp-devops' and 'src'
-  dir: 'gcp-devops/apps/application-service/src' 
+  dir: 'gcp-devops/apps/application-service' # No more /src at the end
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service', '.']
-
+  
 # 2. Build & Push Patient Service
 - name: 'gcr.io/cloud-builders/docker'
   dir: 'gcp-devops/apps/patient-service' # Added 'gcp-devops'
