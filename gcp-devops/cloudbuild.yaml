@@ -1,26 +1,43 @@
-   
-options:
-  logging: CLOUD_LOGGING_ONLY
-
-timeout: "30m"
-
 steps:
-- name: hashicorp/terraform:1.6
-  dir: gcp-devops/infra
-  entrypoint: terraform
-  args: ["init"]
 
-- name: hashicorp/terraform:1.6
-  dir: gcp-devops/infra
-  entrypoint: terraform
-  args: ["validate"]
+# Build application-service.....
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service','./apps/application-service']
 
-- name: hashicorp/terraform:1.6
-  dir: gcp-devops/infra
-  entrypoint: terraform
-  args: ["plan", "-out=tfplan"]
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service']
 
-- name: hashicorp/terraform:1.6
-  dir: gcp-devops/infra
-  entrypoint: terraform
-  args: ["apply", "tfplan"]
+
+# Build patient-service.....
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service','./apps/patient-service']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service']
+
+
+# Build order-service.....
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service','./apps/order-service']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service']
+
+
+# Get cluster credentials....
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - container
+  - clusters
+  - get-credentials
+  - prod-gke
+  - --region
+  - asia-south1
+  - --project
+  - $PROJECT_ID
+
+
+# Deploy to cluster
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['apply','-f','k8s/']
