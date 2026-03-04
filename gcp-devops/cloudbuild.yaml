@@ -4,6 +4,11 @@ options:
 timeout: "60m"
 
 steps:
+# --- DEBUG STEP: This will show us exactly where your files are ---
+- name: 'ubuntu'
+  args: ['find', '.', '-maxdepth', '3', '-not', '-path', '*/.*']
+
+steps:
 # 1. Build & Push Application Service
 - name: 'gcr.io/cloud-builders/docker'
   dir: 'apps/application-service'  # Move into the folder first
