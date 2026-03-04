@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: patient-service
-        image: asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service
+        image: asia-south1-docker.pkg.dev/PLACEHOLDER_PROJECT_ID/devops/patient-service:latest
         ports:
-        - containerPort: 3000
-
+        - containerPort: 8080 # Assuming standard Java/Spring port, change if different
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +28,5 @@ spec:
     app: patient-service
   ports:
   - port: 80
-    targetPort: 3000
+    targetPort: 8080
   type: ClusterIP
