@@ -1,12 +1,8 @@
 FROM node:18
-
 WORKDIR /app
-
-COPY package*.json ./
+# This copies the package.json from the same folder as the Dockerfile
+COPY package*.json ./ 
 RUN npm install
-
-COPY . .
-
-EXPOSE 3001
-
-CMD ["node","index.js"]
+# This copies everything else (including the src folder)
+COPY . . 
+CMD ["node", "src/index.js"]
