@@ -25,6 +25,8 @@ steps:
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service', '.']
 
 
+# ... (Build and Push steps remain the same) ...
+
 # Step 4: Get cluster credentials
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
@@ -38,14 +40,18 @@ steps:
   - --project
   - $PROJECT_ID
 
-# Step 5: Inject Project ID and Deploy
+# Step 5: Replace Placeholder and Deploy All
 - name: 'gcr.io/cloud-builders/kubectl'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
-    # Use sed to swap the placeholder for the real Project ID
-    sed -i "s/PLACEHOLDER_PROJECT_ID/$PROJECT_ID/g" gcp-devops/k8s/application.yaml
+    echo "Replacing PLACEHOLDER_PROJECT_ID with $PROJECT_ID in all YAMLs..."
     
-    # Now apply the modified file
-    kubectl apply -f gcp-devops/k8s/application.yaml
+    # This loop finds all yaml files and swaps the placeholder
+    for file in gcp-devops/k8s/*.yaml; do
+      sed -i "s/PLACEHOLDER_PROJECT_ID/$PROJECT_ID/g" "$file"
+    done
+    
+    # Deploy the entire folder
+    kubectl apply -f gcp-devops/k8s/
