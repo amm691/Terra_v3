@@ -16,7 +16,7 @@ spec:
       - name: patient-service
         image: asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service
         ports:
-        - containerPort: 3001
+        - containerPort: 3000
 
 ---
 apiVersion: v1
@@ -28,5 +28,5 @@ spec:
     app: patient-service
   ports:
   - port: 80
-    targetPort: 3001
+    targetPort: 3000
   type: ClusterIP
