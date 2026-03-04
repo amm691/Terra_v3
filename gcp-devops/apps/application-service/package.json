@@ -1,2 +1,12 @@
-cd ~/gcp-devops/apps/application-service
-npm init -y
+{
+  "name": "application-service",
+  "version": "1.0.0",
+  "description": "Node.js service for GKE",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
