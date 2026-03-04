@@ -6,8 +6,8 @@ COPY src ./src
 # Changed 'mvc' to 'mvn' below
 RUN mvn clean package -DskipTests 
 
-# Stage 2: Run with OpenJDK
-FROM openjdk:17-jdk-slim
+# Stage 2: Run with a more stable OpenJDK image
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
