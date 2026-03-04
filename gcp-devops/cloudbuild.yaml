@@ -4,20 +4,19 @@ options:
 timeout: "60m"
 
 steps:
-# --- DEBUG STEP: This will show us exactly where your files are ---
+# --- STEP 0: List files to ensure we have the right path ---
 - name: 'ubuntu'
-  args: ['find', '.', '-maxdepth', '3', '-not', '-path', '*/.*']
+  args: ['ls', '-R']
 
-steps:
-# 1. Build & Push Application Service
+# --- STEP 1: Build & Push application-service ---
 - name: 'gcr.io/cloud-builders/docker'
-  dir: 'apps/application-service'  # Move into the folder first
+  dir: 'apps/application-service'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service', '.']
 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service']
 
-# 2. Build & Push Patient Service
+# --- STEP 2: Build & Push patient-service ---
 - name: 'gcr.io/cloud-builders/docker'
   dir: 'apps/patient-service'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service', '.']
@@ -25,7 +24,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service']
 
-# 3. Build & Push Order Service
+# --- STEP 3: Build & Push order-service ---
 - name: 'gcr.io/cloud-builders/docker'
   dir: 'apps/order-service'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service', '.']
@@ -33,7 +32,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service']
 
-# 4. Get cluster credentials
+# --- STEP 4: Get cluster credentials (CORRECTED ZONE) ---
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
@@ -41,11 +40,11 @@ steps:
   - clusters
   - get-credentials
   - prod-gke
-  - --region
-  - us-central1  # Verify if your cluster is in asia-south1 or us-central1!
+  - --zone
+  - us-central1-a
   - --project
   - $PROJECT_ID
 
-# 5. Deploy to cluster
+# --- STEP 5: Deploy to cluster ---
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['apply', '-f', 'k8s/']
