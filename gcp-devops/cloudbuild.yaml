@@ -8,31 +8,26 @@ steps:
 - name: 'ubuntu'
   args: ['ls', '-R']
 
-# --- STEP 1: Build & Push application-service ---
+steps:
+# 1. Build & Push Application Service
 - name: 'gcr.io/cloud-builders/docker'
-  dir: 'apps/application-service'
+  # NOTICE THE PATH: added 'gcp-devops' and 'src'
+  dir: 'gcp-devops/apps/application-service/src' 
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service', '.']
 
+# 2. Build & Push Patient Service
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service']
-
-# --- STEP 2: Build & Push patient-service ---
-- name: 'gcr.io/cloud-builders/docker'
-  dir: 'apps/patient-service'
+  dir: 'gcp-devops/apps/patient-service' # Added 'gcp-devops'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service', '.']
 
+# 3. Build & Push Order Service
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service']
-
-# --- STEP 3: Build & Push order-service ---
-- name: 'gcr.io/cloud-builders/docker'
-  dir: 'apps/order-service'
+  dir: 'gcp-devops/apps/order-service' # Added 'gcp-devops'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service', '.']
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service']
+# ... (Push steps stay the same) ...
 
-# --- STEP 4: Get cluster credentials (CORRECTED ZONE) ---
+# 4. Get cluster credentials
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
@@ -45,6 +40,7 @@ steps:
   - --project
   - $PROJECT_ID
 
-# --- STEP 5: Deploy to cluster ---
+# 5. Deploy to cluster
 - name: 'gcr.io/cloud-builders/kubectl'
+  dir: 'gcp-devops' # Move into the folder where k8s/ exists
   args: ['apply', '-f', 'k8s/']
