@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: order-service
-        image: asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service
+        image: asia-south1-docker.pkg.dev/PLACEHOLDER_PROJECT_ID/devops/order-service:latest
         ports:
-        - containerPort: 8080
-
+        - containerPort: 8080 # Assuming standard Java/Spring port, change if different
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
