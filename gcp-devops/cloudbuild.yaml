@@ -4,32 +4,31 @@ options:
 timeout: "60m"
 
 steps:
-
-# Build application-service.....
+# 1. Build & Push Application Service
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service','./apps/application-service']
-
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service']
-
-
-# Build patient-service.....
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service','./apps/patient-service']
+  dir: 'apps/application-service'  # Move into the folder first
+  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service', '.']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service']
+  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service']
 
-
-# Build order-service.....
+# 2. Build & Push Patient Service
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build','-t','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service','./apps/order-service']
+  dir: 'apps/patient-service'
+  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service', '.']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push','asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service']
+  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/patient-service']
 
+# 3. Build & Push Order Service
+- name: 'gcr.io/cloud-builders/docker'
+  dir: 'apps/order-service'
+  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service', '.']
 
-# Get cluster credentials....
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/devops/order-service']
+
+# 4. Get cluster credentials
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
@@ -38,11 +37,10 @@ steps:
   - get-credentials
   - prod-gke
   - --region
-  - asia-south1
+  - us-central1  # Verify if your cluster is in asia-south1 or us-central1!
   - --project
   - $PROJECT_ID
 
-
-# Deploy to cluster
+# 5. Deploy to cluster
 - name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply','-f','k8s/']
+  args: ['apply', '-f', 'k8s/']
