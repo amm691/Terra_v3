@@ -1,0 +1,2 @@
+cd ~/gcp-devops/apps/application-service
+npm init -y
