@@ -14,9 +14,11 @@ spec:
     spec:
       containers:
       - name: application-service
-        image: asia-south1-docker.pkg.dev/$PROJECT_ID/devops/application-service
+        # The build script will replace PLACEHOLDER_PROJECT_ID with your secret
+        image: asia-south1-docker.pkg.dev/PLACEHOLDER_PROJECT_ID/devops/application-service:latest
         ports:
         - containerPort: 3001
+        imagePullPolicy: Always
 
 ---
 apiVersion: v1
